@@ -4,281 +4,281 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sylph — speak, and it flows</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236d5efc' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M2 10v3'/%3E%3Cpath d='M6 6v11'/%3E%3Cpath d='M10 3v18'/%3E%3Cpath d='M14 8v7'/%3E%3Cpath d='M18 5v13'/%3E%3Cpath d='M22 10v3'/%3E%3C/svg%3E" />
-  <meta name="description" content="Feather-light, on-device voice to text. Press a key, speak in any app, and your words flow in. Powered by Cactus Whistle — a 16.9 MB model that runs fully offline." />
+  <meta name="description" content="Feather-light, on-device voice to text. Press a key, speak in any app, and your words flow in. Powered by Cactus Whistle — a 16.9 MB model that runs fully offline. Monochrome, open source." />
   <meta property="og:title" content="Sylph — speak, and it flows" />
-  <meta property="og:description" content="Feather-light, on-device voice to text. Fully offline, 16.9 MB model, open source." />
+  <meta property="og:description" content="On-device voice to text. 16.9 MB model. Fully offline. Open source." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M2 10v3'/%3E%3Cpath d='M6 6v11'/%3E%3Cpath d='M10 3v18'/%3E%3Cpath d='M14 8v7'/%3E%3Cpath d='M18 5v13'/%3E%3Cpath d='M22 10v3'/%3E%3C/svg%3E" />
   <style>
     :root{
-      --bg:#fbfbfc; --surface:#ffffff; --surface-2:#f3f3f4; --stroke:rgba(10,10,12,.10);
-      --stroke-2:rgba(10,10,12,.16); --ink:#0b0b0d; --dim:#5b5b61; --faint:#9a9aa1;
-      --accent:#0b0b0d; --on-accent:#ffffff; --soft:#ededee;
-      --grad:linear-gradient(145deg,#2a2a2e,#050506);
-      --glow:rgba(10,10,12,.14); --nav-bg:rgba(251,251,252,.72);
-      --radius:16px; --shadow:0 20px 50px rgba(10,10,12,.12),0 4px 14px rgba(10,10,12,.06);
-      --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,system-ui,sans-serif;
+      --bg:#050506; --ink:#f4f4f6; --dim:#8c8c93; --faint:#54545b;
+      --line:rgba(255,255,255,.1); --line-2:rgba(255,255,255,.18);
+      --glow:rgba(255,255,255,.65); --panel:#0d0d0f; --panel-2:#141416;
       --mono:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
-    }
-    @media (prefers-color-scheme: dark){
-      :root{
-        --bg:#09090a; --surface:#141416; --surface-2:#1c1c1f; --stroke:rgba(255,255,255,.10);
-        --stroke-2:rgba(255,255,255,.18); --ink:#f4f4f6; --dim:#a2a2a9; --faint:#6a6a71;
-        --accent:#fafafa; --on-accent:#0a0a0b; --soft:rgba(255,255,255,.09);
-        --grad:linear-gradient(145deg,#ffffff,#c9c9cf);
-        --glow:rgba(255,255,255,.4); --nav-bg:rgba(9,9,10,.72);
-        --shadow:0 20px 50px rgba(0,0,0,.5),0 4px 14px rgba(0,0,0,.4);
-      }
+      --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;
     }
     *{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
-    body{font-family:var(--font);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden}
+    body{font-family:var(--sans);background:var(--bg);color:var(--ink);overflow-x:hidden;line-height:1.5;-webkit-font-smoothing:antialiased}
     a{color:inherit;text-decoration:none}
-    .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
-
-    /* aurora wash */
-    body::before{content:"";position:fixed;inset:-10% -10% auto -10%;height:560px;pointer-events:none;z-index:0;
-      background:radial-gradient(50% 100% at 20% 0%,var(--glow),transparent 60%),
-                 radial-gradient(45% 100% at 85% 0%,var(--glow),transparent 60%)}
-    body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(var(--stroke) 1px,transparent 1px);background-size:24px 24px;opacity:.55;-webkit-mask-image:radial-gradient(120% 70% at 50% -5%,#000 18%,transparent 72%);mask-image:radial-gradient(120% 70% at 50% -5%,#000 18%,transparent 72%)}
+    .wrap{max-width:1120px;margin:0 auto;padding:0 24px;position:relative;z-index:2}
+    canvas#grid{position:fixed;inset:0;z-index:0;opacity:.9}
+    .mono{font-family:var(--mono);letter-spacing:.5px}
 
     /* nav */
-    nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:var(--nav-bg);border-bottom:1px solid var(--stroke)}
-    .nav-in{display:flex;align-items:center;justify-content:space-between;height:66px}
-    .logo{display:flex;align-items:center;gap:11px;font-weight:720;font-size:19px;letter-spacing:-.3px}
-    .logo .mk{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;box-shadow:0 8px 20px var(--glow),inset 0 0 0 1px rgba(255,255,255,.14)}
-    .logo .mk svg{width:60%;height:60%;color:var(--on-accent)}
-    .nav-links{display:flex;align-items:center;gap:28px;font-size:14.5px;color:var(--dim);font-weight:520}
+    nav{position:fixed;top:0;left:0;right:0;z-index:50;height:64px;display:flex;align-items:center;
+      backdrop-filter:blur(14px);background:rgba(5,5,6,.6);border-bottom:1px solid var(--line)}
+    .nav-in{display:flex;align-items:center;justify-content:space-between;width:100%}
+    .logo{display:flex;align-items:center;gap:11px;font-weight:700;font-size:18px;letter-spacing:-.2px}
+    .logo .mk{width:30px;height:30px;border-radius:8px;background:#fff;display:grid;place-items:center;box-shadow:0 0 18px var(--glow)}
+    .logo .mk svg{width:17px;height:17px;color:#000}
+    .nav-links{display:flex;gap:26px;font-family:var(--mono);font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:1px}
     .nav-links a:hover{color:var(--ink)}
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:11px;font-weight:600;font-size:14.5px;border:1px solid var(--stroke-2);background:var(--surface);transition:.15s;cursor:pointer}
-    .btn:hover{border-color:var(--accent);color:var(--accent)}
-    .btn.primary{background:var(--accent);color:var(--on-accent);border:0;box-shadow:0 10px 24px var(--glow)}
-    .btn.primary:hover{filter:brightness(1.06);color:var(--on-accent)}
-    @media(max-width:720px){.nav-links{display:none}}
+    @media(max-width:760px){.nav-links{display:none}}
+    .btn{display:inline-flex;align-items:center;gap:9px;padding:11px 20px;border-radius:10px;font-weight:600;font-size:14px;
+      border:1px solid var(--line-2);background:transparent;color:var(--ink);transition:.18s;cursor:pointer;font-family:var(--sans)}
+    .btn:hover{border-color:#fff;box-shadow:0 0 22px rgba(255,255,255,.14)}
+    .btn.primary{background:#fff;color:#000;border:0;box-shadow:0 0 30px rgba(255,255,255,.28)}
+    .btn.primary:hover{box-shadow:0 0 44px rgba(255,255,255,.5)}
+    .btn svg{width:16px;height:16px}
+
+    section{position:relative;z-index:2;padding:110px 0}
+    .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);
+      display:inline-flex;align-items:center;gap:10px;margin-bottom:20px}
+    .eyebrow::before{content:"";width:22px;height:1px;background:var(--line-2)}
+    .eyebrow .d{width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 10px var(--glow);animation:blink 2s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 
     /* hero */
-    header{position:relative;z-index:1;text-align:center;padding:84px 0 40px}
-    .pill-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 15px;border-radius:40px;background:var(--surface);border:1px solid var(--stroke);box-shadow:var(--shadow);font-size:13px;font-weight:560;color:var(--dim);margin-bottom:26px}
-    .pill-badge .d{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--glow)}
-    h1{font-size:68px;line-height:1.02;letter-spacing:-2.4px;font-weight:800;margin-bottom:22px}
-    h1 .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-    .lead{font-size:20px;color:var(--dim);max-width:620px;margin:0 auto 34px;line-height:1.55}
-    .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
-    .trust{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;color:var(--faint);font-size:13.5px;font-weight:520}
-    .trust span{display:inline-flex;align-items:center;gap:7px}
-    .trust svg{width:15px;height:15px;color:var(--accent)}
-    @media(max-width:720px){h1{font-size:44px;letter-spacing:-1.4px}.lead{font-size:17px}}
+    header{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:120px 0 60px}
+    h1{font-size:clamp(48px,9vw,112px);line-height:.95;letter-spacing:-3px;font-weight:800;margin:14px 0 26px}
+    h1 .flow{position:relative;display:inline-block}
+    h1 .flow::after{content:"";position:absolute;left:0;right:0;bottom:6px;height:5px;background:#fff;box-shadow:0 0 22px var(--glow);
+      transform:scaleX(0);transform-origin:left;animation:underline 1.4s .6s cubic-bezier(.2,.8,.2,1) forwards}
+    @keyframes underline{to{transform:scaleX(1)}}
+    .lead{font-size:clamp(16px,2.1vw,21px);color:var(--dim);max-width:600px;margin-bottom:34px}
+    .lead b{color:var(--ink);font-weight:600}
+    .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:46px}
 
-    /* app mockup */
-    .mock{position:relative;z-index:1;margin:50px auto 0;max-width:900px;border-radius:20px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--stroke)}
-    .mock .bar{height:40px;background:var(--surface);display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--stroke)}
-    .mock .bar i{width:12px;height:12px;border-radius:50%;background:#e2e4ec;display:inline-block}
-    .mock .bar i:nth-child(1){background:#ff5f57}.mock .bar i:nth-child(2){background:#febc2e}.mock .bar i:nth-child(3){background:#28c840}
-    .shot{display:grid;grid-template-columns:200px 1fr;background:var(--bg);min-height:360px}
-    .shot .sb{background:rgba(255,255,255,.7);border-right:1px solid var(--stroke);padding:16px 12px}
-    .shot .sb .row{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;color:var(--dim);font-size:13.5px;font-weight:520}
-    .shot .sb .row.on{background:var(--soft);color:var(--accent);font-weight:600}
-    .shot .sb .row .b{width:16px;height:16px;border-radius:5px;background:currentColor;opacity:.25}
-    .shot .main{padding:34px 36px}
-    .shot .main h3{font-size:22px;letter-spacing:-.5px;margin-bottom:6px}
-    .shot .main p.s{color:var(--dim);font-size:13.5px;margin-bottom:22px}
-    .shot .card{background:var(--surface);border:1px solid var(--stroke);border-radius:16px;padding:30px;text-align:center;box-shadow:var(--shadow)}
-    .shot .orb{width:92px;height:92px;border-radius:50%;margin:0 auto 16px;background:var(--grad);display:grid;place-items:center;box-shadow:0 14px 30px var(--glow),inset 0 0 0 1px rgba(255,255,255,.18)}
-    .shot .orb svg{width:38px;height:38px;color:var(--on-accent)}
-    .shot .card b{font-size:16px}.shot .card .k{display:inline-block;margin-top:8px;padding:4px 10px;border-radius:8px;background:var(--surface-2);border:1px solid var(--stroke-2);font-size:12px;font-weight:650}
-    @media(max-width:720px){.shot{grid-template-columns:1fr}.shot .sb{display:none}}
+    /* animated glyph (the Nothing-style light bars) */
+    .glyph{display:flex;align-items:center;gap:clamp(6px,1.4vw,14px);height:120px;margin:10px 0 40px}
+    .glyph i{width:clamp(5px,1vw,9px);border-radius:6px;background:#2a2a2e;position:relative;overflow:hidden}
+    .glyph i::after{content:"";position:absolute;inset:0;background:#fff;box-shadow:0 0 16px var(--glow);
+      transform:translateY(100%);animation:fillbar 2.6s cubic-bezier(.4,0,.2,1) infinite;animation-delay:calc(var(--i,0)*.09s)}
+    @keyframes fillbar{0%{transform:translateY(100%)}35%{transform:translateY(0)}70%{transform:translateY(0)}100%{transform:translateY(-100%)}}
 
-    /* floating pill demo */
-    .floatpill{position:absolute;left:50%;bottom:-26px;transform:translateX(-50%);z-index:2;display:flex;align-items:center;gap:12px;padding:0 20px;height:56px;border-radius:30px;background:rgba(23,26,35,.9);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.14);box-shadow:0 18px 44px rgba(17,20,34,.4);color:#fff}
-    .floatpill .o{width:26px;height:26px;border-radius:50%;background:#f4f4f6;box-shadow:0 0 12px rgba(255,255,255,.5)}
-    .floatpill .bars{display:flex;gap:3px;align-items:center;height:22px}
-    .floatpill .bars span{width:3px;border-radius:2px;background:#f4f4f6}
-    .floatpill .t{font-size:13px;font-weight:540;color:#c7cdd9}
+    /* spec ticker */
+    .ticker{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;padding:16px 0;
+      -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+    .track{display:flex;gap:56px;white-space:nowrap;width:max-content;animation:scroll 26s linear infinite;font-family:var(--mono);font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px}
+    .track span{display:inline-flex;align-items:center;gap:12px}
+    .track span::before{content:"●";color:#fff;font-size:8px;text-shadow:0 0 10px var(--glow)}
+    @keyframes scroll{to{transform:translateX(-50%)}}
 
-    section{position:relative;z-index:1;padding:90px 0}
-    .eyebrow{color:var(--accent);font-family:var(--mono);font-weight:680;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;text-align:center;margin-bottom:12px}
-    .h2{font-size:40px;letter-spacing:-1.2px;font-weight:780;text-align:center;margin-bottom:14px}
-    .sub{color:var(--dim);font-size:17px;text-align:center;max-width:560px;margin:0 auto 54px}
+    /* section heading */
+    .h2{font-size:clamp(32px,5vw,52px);letter-spacing:-1.5px;font-weight:780;margin-bottom:16px;line-height:1.02}
+    .sub{color:var(--dim);font-size:clamp(15px,1.8vw,18px);max-width:620px;margin-bottom:56px}
 
-    .features{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-    .feat{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--radius);padding:28px;box-shadow:0 1px 3px rgba(17,20,34,.05);transition:.18s}
-    .feat:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
-    .feat .ic{width:44px;height:44px;border-radius:12px;background:var(--soft);display:grid;place-items:center;margin-bottom:16px}
-    .feat .ic svg{width:22px;height:22px;color:var(--accent)}
-    .feat h4{font-size:17px;margin-bottom:7px;letter-spacing:-.3px}
+    /* reveal */
+    .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1)}
+    .reveal.in{opacity:1;transform:none}
+
+    /* steps / how it works */
+    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+    .step{background:var(--panel);padding:30px 24px;min-height:220px;display:flex;flex-direction:column;transition:background .25s}
+    .step:hover{background:var(--panel-2)}
+    .step .n{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:2px;margin-bottom:auto}
+    .step .ico{width:44px;height:44px;border-radius:11px;border:1px solid var(--line-2);display:grid;place-items:center;margin:14px 0}
+    .step .ico svg{width:22px;height:22px;color:#fff}
+    .step h4{font-size:17px;margin-bottom:7px}
+    .step p{color:var(--dim);font-size:13.5px;line-height:1.55}
+    @media(max-width:860px){.steps{grid-template-columns:1fr 1fr}}
+    @media(max-width:520px){.steps{grid-template-columns:1fr}}
+
+    /* features grid */
+    .feats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .feat{border:1px solid var(--line);border-radius:16px;padding:28px;background:var(--panel);transition:.22s;position:relative;overflow:hidden}
+    .feat:hover{border-color:var(--line-2);transform:translateY(-3px)}
+    .feat::before{content:"";position:absolute;top:-40%;left:-40%;width:80%;height:80%;background:radial-gradient(circle,rgba(255,255,255,.07),transparent 70%);opacity:0;transition:.3s}
+    .feat:hover::before{opacity:1}
+    .feat .ico{width:46px;height:46px;border-radius:12px;border:1px solid var(--line-2);display:grid;place-items:center;margin-bottom:16px}
+    .feat .ico svg{width:22px;height:22px;color:#fff}
+    .feat h4{font-size:17px;margin-bottom:8px}
     .feat p{color:var(--dim);font-size:14px;line-height:1.6}
-    @media(max-width:860px){.features{grid-template-columns:1fr}}
+    @media(max-width:860px){.feats{grid-template-columns:1fr}}
 
-    /* steps */
-    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;counter-reset:s}
-    .step{text-align:center}
-    .step .n{counter-increment:s;width:54px;height:54px;border-radius:50%;margin:0 auto 18px;background:var(--grad);color:var(--on-accent);display:grid;place-items:center;font-size:22px;font-weight:720;box-shadow:0 12px 26px var(--glow),inset 0 0 0 1px rgba(255,255,255,.14)}
-    .step .n::before{content:counter(s)}
-    .step h4{font-size:18px;margin-bottom:8px}
-    .step p{color:var(--dim);font-size:14.5px;line-height:1.6;max-width:280px;margin:0 auto}
-    @media(max-width:860px){.steps{grid-template-columns:1fr;gap:34px}}
+    /* build timeline */
+    .road{border-left:1px solid var(--line-2);margin-left:10px;padding-left:34px;display:flex;flex-direction:column;gap:34px}
+    .node{position:relative}
+    .node::before{content:"";position:absolute;left:-41px;top:3px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--faint)}
+    .node.done::before{background:#fff;border-color:#fff;box-shadow:0 0 16px var(--glow)}
+    .node .tag{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+    .node.done .tag{color:#fff}
+    .node h4{font-size:19px;margin-bottom:6px;letter-spacing:-.3px}
+    .node p{color:var(--dim);font-size:14.5px;line-height:1.6;max-width:640px}
 
-    /* comparison */
-    .compare{background:var(--surface);border:1px solid var(--stroke);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;max-width:760px;margin:0 auto}
-    .compare .r{display:grid;grid-template-columns:1.4fr 1fr 1fr;padding:18px 26px;border-bottom:1px solid var(--stroke);font-size:14.5px;align-items:center}
-    .compare .r:last-child{border-bottom:0}
-    .compare .r.head{background:var(--surface-2);font-weight:680;font-size:13px}
-    .compare .r .sy{color:var(--accent);font-weight:680}
-    .compare .r .ot{color:var(--faint)}
-    .compare .r div:first-child{color:var(--dim);font-weight:560}
+    /* big download */
+    .download{text-align:center;border:1px solid var(--line);border-radius:26px;padding:70px 32px;background:
+      radial-gradient(60% 100% at 50% 0%,rgba(255,255,255,.07),transparent 65%),var(--panel)}
+    .download .big-glyph{display:flex;justify-content:center;gap:9px;height:70px;margin-bottom:28px}
+    .download .big-glyph i{width:8px;border-radius:6px;background:#fff;box-shadow:0 0 18px var(--glow);animation:eq 1.3s ease-in-out infinite}
+    @keyframes eq{0%,100%{height:16px}50%{height:60px}}
+    .download h2{font-size:clamp(30px,5vw,46px);letter-spacing:-1.5px;margin-bottom:14px}
+    .download p{color:var(--dim);margin-bottom:30px;font-size:16px}
+    .dl-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+    .req{margin-top:26px;font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.5px;line-height:1.8}
 
-    /* powered-by */
-    .powered{text-align:center;background:linear-gradient(145deg,var(--surface),var(--surface-2));border:1px solid var(--stroke);border-radius:24px;padding:60px 40px;box-shadow:var(--shadow)}
-    .powered .chip{display:inline-flex;align-items:center;gap:9px;padding:8px 16px;border-radius:30px;background:var(--surface);border:1px solid var(--stroke);font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:.3px;margin-bottom:22px;box-shadow:0 2px 8px var(--glow)}
-    .powered h3{font-size:30px;letter-spacing:-.8px;margin-bottom:14px}
-    .powered p{color:var(--dim);font-size:16px;max-width:560px;margin:0 auto 10px;line-height:1.6}
-    .stats{display:flex;gap:46px;justify-content:center;margin-top:36px;flex-wrap:wrap}
-    .stat .v{font-size:34px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px}
-    .stat .l{color:var(--faint);font-size:13px;font-weight:560;margin-top:2px}
-
-    /* final cta */
-    .final{text-align:center}
-    .final h2{font-size:46px;letter-spacing:-1.4px;font-weight:800;margin-bottom:16px}
-    .final p{color:var(--dim);font-size:18px;margin-bottom:30px}
-
-    footer{position:relative;z-index:1;border-top:1px solid var(--stroke);padding:40px 0;color:var(--faint);font-size:13.5px}
-    .foot-in{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
-    .foot-in a{color:var(--dim)}.foot-in a:hover{color:var(--accent)}
+    footer{border-top:1px solid var(--line);padding:40px 0;position:relative;z-index:2}
+    .foot-in{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.5px}
+    .foot-in a:hover{color:var(--ink)}
   </style>
 </head>
 <body>
-  <nav>
-    <div class="wrap nav-in">
-      <a class="logo"><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg></span>Sylph</a>
-      <div class="nav-links">
-        <a href="#features">Features</a>
-        <a href="#how">How it works</a>
-        <a href="#why">Why it's light</a>
-        <a href="https://github.com/themaker00001/sylph">GitHub</a>
-      </div>
-      <a class="btn primary" href="https://github.com/themaker00001/sylph">Get Sylph</a>
-    </div>
-  </nav>
+  <canvas id="grid"></canvas>
 
-  <header class="wrap">
-    <div class="pill-badge"><span class="d"></span> On-device · open source · 16.9 MB model</div>
-    <h1>Speak, and it <span class="g">flows.</span></h1>
-    <p class="lead">Sylph is a feather-light voice-to-text app. Press a key in any app, talk, and your words appear — transcribed entirely on your device. No cloud. No account. No latency.</p>
-    <div class="cta">
-      <a class="btn primary" href="https://github.com/themaker00001/sylph">Download for macOS</a>
-      <a class="btn" href="https://github.com/themaker00001/sylph#getting-started">Build from source</a>
+  <nav><div class="wrap nav-in">
+    <a class="logo"><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg></span>SYLPH</a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#build">How we build it</a>
+      <a href="#why">Why</a>
+      <a href="https://github.com/themaker00001/sylph">GitHub</a>
     </div>
-    <div class="trust">
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Fully offline</span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> 7 languages</span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> ~11 ms first token</span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> macOS · Windows · Linux</span>
-    </div>
+    <a class="btn primary" href="#download"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16"/></svg>Download</a>
+  </div></nav>
 
-    <!-- App mockup -->
-    <div class="mock">
-      <div class="bar"><i></i><i></i><i></i></div>
-      <div class="shot">
-        <div class="sb">
-          <div class="logo" style="padding:4px 8px 20px;font-size:16px"><span class="mk" style="width:24px;height:24px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg></span>Sylph</div>
-          <div class="row on"><span class="b"></span> Dictate</div>
-          <div class="row"><span class="b"></span> History</div>
-          <div class="row"><span class="b"></span> Dictionary</div>
-          <div class="row"><span class="b"></span> Settings</div>
-        </div>
-        <div class="main">
-          <h3>Dictate anywhere</h3>
-          <p class="s">Press your hotkey in any app, speak, and Sylph types it for you.</p>
-          <div class="card">
-            <div class="orb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg></div>
-            <b>Tap to try it here</b><br>
-            <span class="k">⌘ ⇧ Space</span>
-          </div>
-        </div>
-      </div>
-      <div class="floatpill">
-        <span class="o"></span>
-        <span class="bars" id="bars"></span>
-        <span class="t">Listening…</span>
-      </div>
+  <header><div class="wrap">
+    <div class="eyebrow"><span class="d"></span> On-device · voice to text · open source</div>
+    <h1>Speak,<br>and it <span class="flow">flows.</span></h1>
+    <p class="lead">Sylph is a feather-light dictation app. Press a key in <b>any app</b>, talk, and your words appear — transcribed <b>entirely on your device</b>. No cloud. No account. No latency.</p>
+    <div class="glyph" id="heroGlyph"></div>
+    <div class="hero-cta">
+      <a class="btn primary" href="#download"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16"/></svg>Download the build</a>
+      <a class="btn" href="#how">See how it works</a>
     </div>
+  </div>
+  <div class="ticker"><div class="track" id="track"></div></div>
   </header>
 
-  <section id="features" class="wrap">
-    <div class="eyebrow">Everything you need</div>
-    <h2 class="h2">Dictation that disappears into your flow</h2>
-    <p class="sub">A global hotkey, a glassy pill, and transcripts that land before you lift your finger.</p>
-    <div class="features">
-      <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><h4>Fully on-device</h4><p>Cactus Whistle runs locally. Your voice never leaves your machine — no uploads, ever.</p></div>
-      <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><h4>Instant</h4><p>~11 ms to first token and 1,300 tokens/sec decoding. It feels like the words were already there.</p></div>
-      <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><h4>Works everywhere</h4><p>Press your hotkey in any app — editor, browser, chat, email — and the text flows right in.</p></div>
-      <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><h4>Your dictionary</h4><p>Teach Sylph names and jargon. Whistle biases toward the words you care about.</p></div>
-      <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></div><h4>7 languages</h4><p>English, German, French, Spanish, Italian, Dutch and Polish — auto-detected or pinned.</p></div>
-      <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><h4>Private by design</h4><p>Local history, no telemetry, open source. You can read every line that runs.</p></div>
+  <section id="what"><div class="wrap reveal">
+    <div class="eyebrow">What it is</div>
+    <div class="h2">A voice that disappears into your flow.</div>
+    <p class="sub">You already think faster than you type. Sylph closes the gap: one key, your voice, and clean text lands wherever your cursor is — an editor, a browser, a chat, a terminal. The whole engine lives on your machine, so it's instant and private by nature.</p>
+    <div class="feats">
+      <div class="feat"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><h4>Fully on-device</h4><p>Cactus Whistle runs locally. Your voice never leaves the machine — nothing is uploaded, ever.</p></div>
+      <div class="feat"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><h4>~11 ms to first token</h4><p>No network round-trip. The words are there before you lift your finger.</p></div>
+      <div class="feat"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><h4>Private by design</h4><p>Local history, zero telemetry, fully open source. Read every line that runs.</p></div>
     </div>
-  </section>
+  </div></section>
 
-  <section id="how" class="wrap">
-    <div class="eyebrow">Three steps</div>
-    <h2 class="h2">How it works</h2>
-    <p class="sub">No setup rituals. Install, grant mic access, and start talking.</p>
+  <section id="how"><div class="wrap reveal">
+    <div class="eyebrow">How it works</div>
+    <div class="h2">Four steps. No ritual.</div>
+    <p class="sub">Install, grant mic access, and talk. Under the hood, the webview captures audio and hands it to a resident Whistle model; the text is pasted back into whatever had focus.</p>
     <div class="steps">
-      <div class="step"><div class="n"></div><h4>Press the hotkey</h4><p>Hit ⌘⇧Space from whatever app you're in. The pill wakes up and starts listening.</p></div>
-      <div class="step"><div class="n"></div><h4>Just talk</h4><p>Say what you mean. Whistle transcribes on your device in real time — offline.</p></div>
-      <div class="step"><div class="n"></div><h4>It flows in</h4><p>Your words are pasted into the focused app, cleanly formatted and ready.</p></div>
+      <div class="step"><div class="n">01</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v4H6zM8 7v14M16 7v14"/></svg></div><h4>Press the key</h4><p>Double-tap your trigger key to go hands-free, or hold it to talk — your choice.</p></div>
+      <div class="step"><div class="n">02</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></div><h4>Just talk</h4><p>A glyph-lit pill shows it's listening. Say what you mean, naturally.</p></div>
+      <div class="step"><div class="n">03</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 12l2 2 4-4"/></svg></div><h4>On-device model</h4><p>Whistle transcribes the audio locally in milliseconds — offline, every time.</p></div>
+      <div class="step"><div class="n">04</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><h4>It flows in</h4><p>Text is pasted into the focused app — and kept in a scratchpad so it's never lost.</p></div>
     </div>
-  </section>
+  </div></section>
 
-  <section id="why" class="wrap">
-    <div class="eyebrow">Light by design</div>
-    <h2 class="h2">A fraction of the weight</h2>
-    <p class="sub">Built on Tauri with a tiny on-device model — not Chromium and a cloud bill.</p>
-    <div class="compare">
-      <div class="r head"><div>&nbsp;</div><div class="sy">Sylph</div><div class="ot">Typical app</div></div>
-      <div class="r"><div>App shell</div><div class="sy">Tauri (native webview)</div><div class="ot">Electron + Chromium</div></div>
-      <div class="r"><div>Speech model</div><div class="sy">16.9 MB, on-device</div><div class="ot">cloud / multi-GB</div></div>
-      <div class="r"><div>Your audio</div><div class="sy">never leaves device</div><div class="ot">often uploaded</div></div>
-      <div class="r"><div>First token</div><div class="sy">~11 ms</div><div class="ot">network round-trip</div></div>
-      <div class="r"><div>Works offline</div><div class="sy">always</div><div class="ot">rarely</div></div>
+  <section id="build"><div class="wrap reveal">
+    <div class="eyebrow">How we're building it</div>
+    <div class="h2">Small on purpose.</div>
+    <p class="sub">Most dictation apps ship a browser engine and phone your audio to a server. Sylph takes the opposite bet: a tiny native shell and a tiny on-device model. Here's the plan — lit nodes are shipped, hollow ones are next.</p>
+    <div class="road">
+      <div class="node done"><div class="tag">Shipped</div><h4>Tauri shell, not Electron</h4><p>The UI runs in the system webview via Tauri — a ~10 MB app instead of a bundled Chromium. Native Rust owns the hotkey, text insertion and the model bridge.</p></div>
+      <div class="node done"><div class="tag">Shipped</div><h4>Cactus Whistle, on-device</h4><p>A 16.9 MB speech model that beats Whisper-base, resident in RAM via a Python sidecar. It downloads itself once on first launch, then never needs the network.</p></div>
+      <div class="node done"><div class="tag">Shipped</div><h4>A hotkey that feels right</h4><p>Double-tap to toggle, hold to talk — on any key you choose, bound live with no restart. Built on global key-state polling so it's rock-solid and prompts for nothing.</p></div>
+      <div class="node done"><div class="tag">Shipped</div><h4>Scratchpad + invisible pill</h4><p>Every transcript lands in a floating card you can copy from, and the pill can shrink to a single unobtrusive dot.</p></div>
+      <div class="node"><div class="tag">Next</div><h4>One-click install</h4><p>Freeze the Python sidecar with PyInstaller so the download runs with zero dependencies — no Python, no setup.</p></div>
+      <div class="node"><div class="tag">Next</div><h4>Live streaming + Windows & Linux</h4><p>Partial transcripts as you speak, and signed builds across all three desktops.</p></div>
     </div>
-  </section>
+  </div></section>
 
-  <section class="wrap">
-    <div class="powered">
-      <div class="chip">✴ Powered by Cactus Whistle</div>
-      <h3>A 16.9 MB model that punches far above its size</h3>
-      <p>Whistle beats Whisper-base on LibriSpeech, SPGISpeech, Earnings-22 and FLEURS — while running on phones, laptops, even microcontrollers. Sylph downloads it automatically on first launch, then never needs the network again.</p>
-      <div class="stats">
-        <div class="stat"><div class="v">16.9 MB</div><div class="l">single model file</div></div>
-        <div class="stat"><div class="v">11 ms</div><div class="l">to first token</div></div>
-        <div class="stat"><div class="v">1,300</div><div class="l">tokens / second</div></div>
-        <div class="stat"><div class="v">7</div><div class="l">languages</div></div>
+  <section id="why"><div class="wrap reveal">
+    <div class="eyebrow">Why on-device</div>
+    <div class="h2">A fraction of the weight.</div>
+    <p class="sub">Lighter app, lighter model, and your audio stays home.</p>
+    <div class="feats">
+      <div class="feat"><div class="ico mono" style="font-weight:700;font-size:15px">10MB</div><h4>vs ~150 MB</h4><p>A native Tauri shell instead of a bundled browser engine.</p></div>
+      <div class="feat"><div class="ico mono" style="font-weight:700;font-size:14px">16.9</div><h4>megabyte model</h4><p>One small file on disk versus a cloud call or a multi-GB download.</p></div>
+      <div class="feat"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h12v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4z"/></svg></div><h4>Stays offline</h4><p>After the one-time model download, Sylph needs no network at all.</p></div>
+    </div>
+  </div></section>
+
+  <section id="download"><div class="wrap reveal">
+    <div class="download">
+      <div class="big-glyph" id="dlGlyph"></div>
+      <h2>Get Sylph</h2>
+      <p>Free, open source, and yours to run.</p>
+      <div class="dl-row">
+        <a class="btn primary" href="https://github.com/themaker00001/sylph/releases/latest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16"/></svg>Download for macOS</a>
+        <a class="btn" href="https://github.com/themaker00001/sylph#getting-started">Build from source</a>
+        <a class="btn" href="https://github.com/themaker00001/sylph">View on GitHub</a>
       </div>
+      <div class="req">macOS 11+ · Apple Silicon · developer preview<br>app shell today — the on-device engine sets up from source (one-click installer is next)<br>first run: right-click → Open, then grant Microphone + Accessibility</div>
     </div>
-  </section>
+  </div></section>
 
-  <section class="wrap final">
-    <h2>Your voice, your machine.</h2>
-    <p>Free and open source. Set it up in a couple of minutes.</p>
-    <div class="cta" style="justify-content:center">
-      <a class="btn primary" href="https://github.com/themaker00001/sylph">Get Sylph on GitHub</a>
-      <a class="btn" href="https://cactuscompute.com/blog/whistle">About Whistle</a>
-    </div>
-  </section>
-
-  <footer>
-    <div class="wrap foot-in">
-      <div class="logo" style="font-size:16px"><span class="mk" style="width:24px;height:24px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg></span>Sylph</div>
-      <div>Apache-2.0 · Built with <a href="https://tauri.app">Tauri</a> &amp; <a href="https://cactuscompute.com/blog/whistle">Cactus Whistle</a></div>
-      <div><a href="https://github.com/themaker00001/sylph">github.com/themaker00001/sylph</a></div>
-    </div>
-  </footer>
+  <footer><div class="wrap foot-in">
+    <span>SYLPH · APACHE-2.0</span>
+    <span>BUILT WITH <a href="https://tauri.app">TAURI</a> &amp; <a href="https://cactuscompute.com/blog/whistle">CACTUS WHISTLE</a></span>
+    <span><a href="https://github.com/themaker00001/sylph">GITHUB.COM/THEMAKER00001/SYLPH</a></span>
+  </div></footer>
 
   <script>
-    // animate the floating-pill waveform
-    const bars = document.getElementById('bars');
-    for (let i=0;i<16;i++){const s=document.createElement('span');bars.appendChild(s);}
-    const els=[...bars.children];
-    setInterval(()=>els.forEach((s,i)=>{s.style.height=(5+Math.abs(Math.sin(Date.now()/160+i*.6))*16)+'px';}),60);
+    // ── Hero glyph bars (staggered light fill via --i) ─────────────────────
+    const heights = [34,70,100,58,86,44,94,66,40,78,52,88,36];
+    document.getElementById('heroGlyph').innerHTML =
+      heights.map((h,i)=>`<i style="height:${h}px;--i:${i}"></i>`).join('');
+
+    // spec ticker (duplicated for seamless loop)
+    const specs=['16.9 MB model','~11 ms first token','1,300 tokens/sec','7 languages','100% on-device','zero telemetry','open source','Tauri + Rust'];
+    const track=document.getElementById('track');
+    track.innerHTML=[...specs,...specs].map(s=>`<span>${s}</span>`).join('');
+
+    // download eq bars
+    const dg=document.getElementById('dlGlyph');
+    for(let i=0;i<9;i++){const b=document.createElement('i');b.style.animationDelay=(i*0.11)+'s';dg.appendChild(b);}
+
+    // ── Reveal (IntersectionObserver + scroll + failsafe; never leaves hidden) ──
+    const reveals=[...document.querySelectorAll('.reveal')];
+    function checkReveal(){const vh=innerHeight;for(const el of reveals){if(el.classList.contains('in'))continue;if(el.getBoundingClientRect().top<vh*0.9)el.classList.add('in');}}
+    if('IntersectionObserver' in window){
+      const io=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');}),{rootMargin:'0px 0px -6% 0px'});
+      reveals.forEach(el=>io.observe(el));
+    }
+    addEventListener('scroll',checkReveal,{passive:true});
+    addEventListener('resize',checkReveal);
+    checkReveal();
+    // failsafe: if anything is still hidden shortly after load, show it
+    setTimeout(()=>reveals.forEach(el=>el.classList.add('in')),1400);
+
+    // ── Reactive dot-matrix grid (Nothing-style) ───────────────────────────
+    const cv=document.getElementById('grid'), ctx=cv.getContext('2d');
+    let W,H,cols,rows,mx=-999,my=-999,t=0; const GAP=30;
+    function resize(){W=cv.width=innerWidth*devicePixelRatio;H=cv.height=innerHeight*devicePixelRatio;
+      cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';
+      cols=Math.ceil(W/(GAP*devicePixelRatio))+1;rows=Math.ceil(H/(GAP*devicePixelRatio))+1;}
+    resize();addEventListener('resize',resize);
+    addEventListener('mousemove',e=>{mx=e.clientX*devicePixelRatio;my=e.clientY*devicePixelRatio;});
+    addEventListener('mouseleave',()=>{mx=my=-999;});
+    const g=GAP*devicePixelRatio, R=150*devicePixelRatio;
+    function draw(){t+=0.015;ctx.clearRect(0,0,W,H);
+      for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+        const px=x*g, py=y*g;
+        const wave=0.24+0.14*Math.sin(t+x*0.35+y*0.28);
+        let a=wave;
+        const dx=px-mx, dy=py-my, d=Math.hypot(dx,dy);
+        if(d<R){a=Math.min(1,a+(1-d/R)*0.9);}
+        const r=(a>0.6?1.7:1.1)*devicePixelRatio;
+        ctx.beginPath();ctx.arc(px,py,r,0,6.283);
+        ctx.fillStyle=`rgba(255,255,255,${a*0.6})`;
+        if(a>0.6){ctx.shadowColor='rgba(255,255,255,.8)';ctx.shadowBlur=8*devicePixelRatio;}else{ctx.shadowBlur=0;}
+        ctx.fill();}
+      requestAnimationFrame(draw);}
+    draw();
   </script>
 </body>
 </html>
