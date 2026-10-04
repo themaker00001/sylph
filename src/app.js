@@ -22,8 +22,9 @@ function mockInvoke(cmd, args) {
       return Promise.resolve(true);
     case "get_settings":
       return Promise.resolve(JSON.parse(LS.getItem("sylph.settings") || "null") || {
-        hotkey: "CmdOrCtrl+Shift+Space", language: "auto", insert_mode: "paste",
-        auto_insert: true, sound: true, keywords: [],
+        language: "auto", insert_mode: "paste", auto_insert: true, sound: true, keywords: [],
+        trigger: "option_left", invisible_pill: false, scratchpad: true, scratch_seconds: 8,
+        theme: "system",
       });
     case "update_settings":
       LS.setItem("sylph.settings", JSON.stringify(args.settings)); return Promise.resolve();
@@ -41,6 +42,7 @@ function mockInvoke(cmd, args) {
         language: "en", ttft_ms: 9.4, decode_tps: 1288.2,
       }), 700));
     case "insert_text": return Promise.resolve();
+    case "capture_trigger": return new Promise((r) => setTimeout(() => r("RControl"), 600));
     default: return Promise.resolve(null);
   }
 }
@@ -238,43 +240,71 @@ $("#kwInput").addEventListener("keydown", (e) => e.key === "Enter" && addKeyword
 // ── Settings ─────────────────────────────────────────────────────────────────
 async function saveSettings() { await invoke("update_settings", { settings }); }
 
+const KEY_LABEL = {
+  option_left: "⌥ Option", option_right: "⌥ Option R", control_left: "⌃ Control",
+  control_right: "⌃ Control R", shift_left: "⇧ Shift", shift_right: "⇧ Shift R", command: "⌘ Command",
+};
+// device_query debug name → our logical token (so modifiers display & store cleanly)
+const DEVICE_TO_LOGICAL = {
+  LOption: "option_left", ROption: "option_right", LAlt: "option_left", RAlt: "option_right",
+  LControl: "control_left", RControl: "control_right", LShift: "shift_left", RShift: "shift_right",
+  Command: "command", LMeta: "command", RMeta: "command", Meta: "command",
+  command_left: "command", // legacy
+};
+function normTrigger(t) { return DEVICE_TO_LOGICAL[t] || t || "option_left"; }
+function triggerLabel(t) { const n = normTrigger(t); return KEY_LABEL[n] || n; }
+
+function applyTheme(t) {
+  const el = document.documentElement;
+  if (t === "light" || t === "dark") el.setAttribute("data-theme", t);
+  else el.removeAttribute("data-theme");
+}
+
 function applySettingsToUI() {
-  $("#heroHotkey").textContent = fmtHotkey(settings.hotkey);
-  $("#hotkeyBtn").textContent = fmtHotkey(settings.hotkey);
+  applyTheme(settings.theme || "system");
+  $("#themeSel").value = settings.theme || "system";
+  const trig = normTrigger(settings.trigger);
+  $("#heroHotkey").textContent = triggerLabel(trig);
+  const sel = $("#triggerSel");
+  if (![...sel.options].some((o) => o.value === trig)) {
+    const o = document.createElement("option");
+    o.value = trig; o.textContent = KEY_LABEL[trig] || trig; sel.appendChild(o);
+  }
+  sel.value = trig;
   $("#langSel").value = settings.language;
   $("#insertSel").value = settings.insert_mode;
   $("#autoIns").checked = settings.auto_insert;
   $("#soundTgl").checked = settings.sound;
+  $("#invisTgl").checked = !!settings.invisible_pill;
+  $("#scratchTgl").checked = settings.scratchpad !== false;
+  $("#scratchSecSel").value = String(settings.scratch_seconds || 8);
 }
 
+$("#themeSel").addEventListener("change", (e) => { settings.theme = e.target.value; applyTheme(settings.theme); saveSettings(); });
+$("#triggerSel").addEventListener("change", (e) => {
+  settings.trigger = e.target.value; applySettingsToUI(); saveSettings();
+  toast("Trigger set to " + triggerLabel(settings.trigger));
+});
+$("#recordKey").addEventListener("click", async () => {
+  const btn = $("#recordKey");
+  const old = btn.textContent;
+  btn.textContent = "Press a key…"; btn.disabled = true;
+  try {
+    const name = await invoke("capture_trigger");
+    if (name) {
+      settings.trigger = normTrigger(name); applySettingsToUI(); saveSettings();
+      toast("Trigger set to " + triggerLabel(settings.trigger));
+    } else toast("No key captured — try again");
+  } catch (err) { toast("Capture failed: " + err); }
+  btn.textContent = old; btn.disabled = false;
+});
 $("#langSel").addEventListener("change", (e) => { settings.language = e.target.value; saveSettings(); });
 $("#insertSel").addEventListener("change", (e) => { settings.insert_mode = e.target.value; saveSettings(); });
 $("#autoIns").addEventListener("change", (e) => { settings.auto_insert = e.target.checked; saveSettings(); });
 $("#soundTgl").addEventListener("change", (e) => { settings.sound = e.target.checked; saveSettings(); });
-
-// hotkey capture
-$("#hotkeyBtn").addEventListener("click", function () {
-  const btn = this;
-  btn.classList.add("listening");
-  btn.textContent = "Press keys…";
-  function onKey(e) {
-    e.preventDefault();
-    if (["Shift", "Control", "Alt", "Meta"].includes(e.key)) return;
-    const parts = [];
-    if (e.metaKey || e.ctrlKey) parts.push("CmdOrCtrl");
-    if (e.shiftKey) parts.push("Shift");
-    if (e.altKey) parts.push("Alt");
-    let key = e.key === " " ? "Space" : e.key.length === 1 ? e.key.toUpperCase() : e.key;
-    parts.push(key);
-    settings.hotkey = parts.join("+");
-    btn.classList.remove("listening");
-    applySettingsToUI();
-    saveSettings();
-    toast("Hotkey saved — restart Sylph to apply");
-    window.removeEventListener("keydown", onKey, true);
-  }
-  window.addEventListener("keydown", onKey, true);
-});
+$("#invisTgl").addEventListener("change", (e) => { settings.invisible_pill = e.target.checked; saveSettings(); });
+$("#scratchTgl").addEventListener("change", (e) => { settings.scratchpad = e.target.checked; saveSettings(); });
+$("#scratchSecSel").addEventListener("change", (e) => { settings.scratch_seconds = +e.target.value; saveSettings(); });
 
 // ── Live pill events (reflect dictations done via the floating pill) ─────────
 listen("sylph://transcribed", () => { renderHistory(); });

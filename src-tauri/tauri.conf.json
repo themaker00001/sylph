@@ -40,7 +40,21 @@
         "visible": false,
         "skipTaskbar": true,
         "shadow": false,
-        "focus": true
+        "focus": false
+      },
+      {
+        "label": "scratch",
+        "url": "scratch.html",
+        "width": 420,
+        "height": 190,
+        "resizable": false,
+        "transparent": true,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "visible": false,
+        "skipTaskbar": true,
+        "shadow": false,
+        "focus": false
       }
     ]
   },

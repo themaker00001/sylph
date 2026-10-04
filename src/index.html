@@ -72,7 +72,7 @@
           </button>
           <div class="wave" id="wave" style="display:none"></div>
           <h2 id="heroStatus">Tap to try it here</h2>
-          <p>or press <span class="kbd" id="heroHotkey">⌘⇧Space</span> from anywhere</p>
+          <p>or <b>double-tap</b> <span class="kbd" id="heroHotkey">⌥ Option</span> anywhere — or hold to talk</p>
 
           <div class="transcript-box empty" id="transcript">Your transcription will appear here…</div>
           <div class="metrics" id="metrics" style="display:none">
@@ -129,8 +129,26 @@
         <p class="page-sub">Tune how Sylph listens and inserts text.</p>
 
         <div class="setting">
-          <div class="label"><h4>Dictation hotkey</h4><p>The global shortcut that starts and stops listening from any app.</p></div>
-          <button class="btn hotkey-capture" id="hotkeyBtn">⌘⇧Space</button>
+          <div class="label"><h4>Appearance</h4><p>Monochrome in every mode. Follow the system, or lock it to light or dark.</p></div>
+          <select id="themeSel">
+            <option value="system">System</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+        <div class="setting">
+          <div class="label"><h4>Trigger key</h4><p><b>Double-tap</b> to toggle hands-free, or <b>press &amp; hold</b> to talk. Pick a key that's free, or <b>Record</b> any key (e.g. a spare Function key). Applies instantly — no restart.</p></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+            <select id="triggerSel">
+              <option value="option_left">Left Option ⌥</option>
+              <option value="option_right">Right Option ⌥</option>
+              <option value="control_left">Left Control ⌃</option>
+              <option value="control_right">Right Control ⌃</option>
+              <option value="shift_right">Right Shift ⇧</option>
+              <option value="command">Command ⌘</option>
+            </select>
+            <button class="btn" id="recordKey">Record…</button>
+          </div>
         </div>
         <div class="setting">
           <div class="label"><h4>Language</h4><p>Force a language, or let Whistle detect it automatically.</p></div>
@@ -155,6 +173,23 @@
         <div class="setting">
           <div class="label"><h4>Auto-insert</h4><p>Drop the transcript into the focused app automatically when you stop.</p></div>
           <label class="switch"><input type="checkbox" id="autoIns" checked /><span></span></label>
+        </div>
+        <div class="setting">
+          <div class="label"><h4>Invisible pill</h4><p>Shrink the floating pill to a tiny, unobtrusive dot while you dictate.</p></div>
+          <label class="switch"><input type="checkbox" id="invisTgl" /><span></span></label>
+        </div>
+        <div class="setting">
+          <div class="label"><h4>Scratchpad</h4><p>After each dictation, show the text in a floating card you can copy from — so nothing's lost if no field was focused.</p></div>
+          <label class="switch"><input type="checkbox" id="scratchTgl" checked /><span></span></label>
+        </div>
+        <div class="setting">
+          <div class="label"><h4>Scratchpad duration</h4><p>How long the scratchpad lingers before it fades away.</p></div>
+          <select id="scratchSecSel">
+            <option value="6">6 seconds</option>
+            <option value="8">8 seconds</option>
+            <option value="12">12 seconds</option>
+            <option value="20">20 seconds</option>
+          </select>
         </div>
         <div class="setting">
           <div class="label"><h4>Sound cues</h4><p>A soft chime when listening starts and stops.</p></div>

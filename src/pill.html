@@ -5,10 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sylph</title>
   <style>
-    :root {
-      --a1: #5ad1ff; --a2: #8b7bff; --a3: #c86bff;
-      --grad: linear-gradient(120deg, var(--a1), var(--a2) 55%, var(--a3));
-    }
     * { box-sizing: border-box; margin: 0; }
     html, body { background: transparent; overflow: hidden; height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
@@ -16,32 +12,37 @@
     .pill {
       -webkit-app-region: drag;
       width: 264px; height: 60px; margin: 14px auto 0;
-      display: flex; align-items: center; gap: 13px; padding: 0 18px;
-      border-radius: 32px;
-      background: rgba(18, 20, 27, 0.82);
-      backdrop-filter: blur(22px) saturate(1.4);
-      -webkit-backdrop-filter: blur(22px) saturate(1.4);
-      border: 1px solid rgba(255,255,255,0.12);
+      display: flex; align-items: center; gap: 13px; padding: 0 18px; border-radius: 32px;
+      background: rgba(14, 14, 16, 0.82);
+      backdrop-filter: blur(22px) saturate(1.1);
+      -webkit-backdrop-filter: blur(22px) saturate(1.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow: 0 16px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
-      color: #eef1f7; transition: border-color .3s;
+      color: #f4f4f6; transition: border-color .3s, box-shadow .3s;
     }
-    .pill.live { border-color: rgba(200,107,255,0.6); }
+    .pill.live { border-color: rgba(255,255,255,0.45); box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 26px rgba(255,255,255,0.14); }
+    /* white glyph-lit orb */
     .orb {
       width: 32px; height: 32px; border-radius: 9px; flex: none;
-      background: var(--grad); display: grid; place-items: center;
-      box-shadow: 0 0 14px rgba(139,123,255,0.6);
+      background: #f4f4f6; display: grid; place-items: center;
+      box-shadow: 0 0 14px rgba(255,255,255,0.3), inset 0 0 0 1px rgba(0,0,0,0.05);
     }
-    .orb svg { width: 18px; height: 18px; color: #fff; }
-    .pill.live .orb { animation: breathe 1.3s infinite; }
-    @keyframes breathe { 50% { transform: scale(1.12); box-shadow: 0 0 22px rgba(200,107,255,0.8);} }
+    .orb svg { width: 18px; height: 18px; color: #0a0a0b; }
+    .pill.live .orb { animation: breathe 1.5s ease-in-out infinite; }
+    @keyframes breathe { 50% { box-shadow: 0 0 24px rgba(255,255,255,0.85); transform: scale(1.06); } }
 
     .bars { display: flex; align-items: center; gap: 3px; height: 26px; flex: 1; }
-    .bars span { width: 3px; height: 6px; border-radius: 3px; background: var(--grad); opacity: .9; }
-    .label { flex: 1; font-size: 13.5px; font-weight: 550; color: #c7cdd9; letter-spacing: .2px; }
-    .hint { font-size: 11px; color: #6b7280; -webkit-app-region: no-drag; }
+    .bars span { width: 3px; height: 6px; border-radius: 3px; background: #f4f4f6; }
+    .label { flex: 1; font-size: 13.5px; font-weight: 550; color: #c7c7cc; letter-spacing: .2px; }
+
     .pill .bars { display: none; }
     .pill.live .bars { display: flex; }
     .pill.live .label { display: none; }
+
+    /* invisible-pill mode: just a small, unobtrusive orb */
+    .pill.min { width: 44px; gap: 0; padding: 0; justify-content: center;
+      background: rgba(14,14,16,0.5); border-color: rgba(255,255,255,0.08); }
+    .pill.min .label, .pill.min .bars { display: none !important; }
   </style>
 </head>
 <body>
