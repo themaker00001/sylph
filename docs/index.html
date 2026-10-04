@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sylph — speak, and it flows</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236d5efc' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M2 10v3'/%3E%3Cpath d='M6 6v11'/%3E%3Cpath d='M10 3v18'/%3E%3Cpath d='M14 8v7'/%3E%3Cpath d='M18 5v13'/%3E%3Cpath d='M22 10v3'/%3E%3C/svg%3E" />
   <meta name="description" content="Feather-light, on-device voice to text. Press a key, speak in any app, and your words flow in. Powered by Cactus Whistle — a 16.9 MB model that runs fully offline." />
   <meta property="og:title" content="Sylph — speak, and it flows" />
   <meta property="og:description" content="Feather-light, on-device voice to text. Fully offline, 16.9 MB model, open source." />
@@ -31,8 +32,8 @@
     nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:rgba(246,247,251,.72);border-bottom:1px solid var(--stroke)}
     .nav-in{display:flex;align-items:center;justify-content:space-between;height:66px}
     .logo{display:flex;align-items:center;gap:11px;font-weight:720;font-size:19px;letter-spacing:-.3px}
-    .logo .mk{width:30px;height:30px;border-radius:9px;background:var(--grad);position:relative;box-shadow:0 8px 20px rgba(109,94,252,.4)}
-    .logo .mk::after{content:"";position:absolute;inset:7px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 2px var(--a1)}
+    .logo .mk{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;box-shadow:0 8px 20px rgba(109,94,252,.4)}
+    .logo .mk svg{width:60%;height:60%;color:#fff}
     .nav-links{display:flex;align-items:center;gap:28px;font-size:14.5px;color:var(--dim);font-weight:520}
     .nav-links a:hover{color:var(--ink)}
     .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:11px;font-weight:600;font-size:14.5px;border:1px solid var(--stroke-2);background:var(--surface);transition:.15s;cursor:pointer}
@@ -134,7 +135,7 @@
 <body>
   <nav>
     <div class="wrap nav-in">
-      <a class="logo"><span class="mk"></span>Sylph</a>
+      <a class="logo"><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg></span>Sylph</a>
       <div class="nav-links">
         <a href="#features">Features</a>
         <a href="#how">How it works</a>
@@ -165,7 +166,7 @@
       <div class="bar"><i></i><i></i><i></i></div>
       <div class="shot">
         <div class="sb">
-          <div class="logo" style="padding:4px 8px 20px;font-size:16px"><span class="mk" style="width:24px;height:24px"></span>Sylph</div>
+          <div class="logo" style="padding:4px 8px 20px;font-size:16px"><span class="mk" style="width:24px;height:24px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg></span>Sylph</div>
           <div class="row on"><span class="b"></span> Dictate</div>
           <div class="row"><span class="b"></span> History</div>
           <div class="row"><span class="b"></span> Dictionary</div>
@@ -253,7 +254,7 @@
 
   <footer>
     <div class="wrap foot-in">
-      <div class="logo" style="font-size:16px"><span class="mk" style="width:24px;height:24px"></span>Sylph</div>
+      <div class="logo" style="font-size:16px"><span class="mk" style="width:24px;height:24px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg></span>Sylph</div>
       <div>Apache-2.0 · Built with <a href="https://tauri.app">Tauri</a> &amp; <a href="https://cactuscompute.com/blog/whistle">Cactus Whistle</a></div>
       <div><a href="https://github.com/themaker00001/sylph">github.com/themaker00001/sylph</a></div>
     </div>

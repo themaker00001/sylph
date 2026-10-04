@@ -27,12 +27,11 @@
     }
     .pill.live { border-color: rgba(200,107,255,0.6); }
     .orb {
-      width: 30px; height: 30px; border-radius: 50%; flex: none;
-      background: var(--grad); position: relative;
+      width: 32px; height: 32px; border-radius: 9px; flex: none;
+      background: var(--grad); display: grid; place-items: center;
       box-shadow: 0 0 14px rgba(139,123,255,0.6);
     }
-    .orb::after { content: ""; position: absolute; inset: 8px; border-radius: 50%;
-      background: rgba(18,20,27,0.85); }
+    .orb svg { width: 18px; height: 18px; color: #fff; }
     .pill.live .orb { animation: breathe 1.3s infinite; }
     @keyframes breathe { 50% { transform: scale(1.12); box-shadow: 0 0 22px rgba(200,107,255,0.8);} }
 
@@ -47,7 +46,9 @@
 </head>
 <body>
   <div class="pill" id="pill">
-    <div class="orb"></div>
+    <div class="orb">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg>
+    </div>
     <div class="bars" id="bars"></div>
     <div class="label" id="label">Press hotkey to speak</div>
   </div>

@@ -1,46 +1,39 @@
 from PIL import Image, ImageDraw
-import math
 
 S = 1024
 img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-d = ImageDraw.Draw(img)
 
-# rounded-square background with aurora diagonal gradient
 def lerp(a, b, t): return tuple(int(a[i] + (b[i]-a[i])*t) for i in range(3))
-c1, c2, c3 = (90,209,255), (139,123,255), (200,107,255)
-bg = Image.new("RGBA", (S, S), (0,0,0,0))
-bd = ImageDraw.Draw(bg)
+# shadcn-ish indigo -> violet
+c1, c2, c3 = (109,94,252), (139,123,255), (192,114,255)
+
+# diagonal gradient
+grad = Image.new("RGBA", (S, S))
+gp = grad.load()
 for y in range(S):
-    for_t = y / S
-    # diagonal-ish: blend by y then shift by x handled per-row approx
-    col = lerp(c1, c3, for_t) if for_t < 1 else c3
-    bd.line([(0,y),(S,y)], fill=col+ (255,))
-# horizontal blend overlay for diagonal feel
-ov = Image.new("RGBA", (S, S), (0,0,0,0))
-od = ImageDraw.Draw(ov)
-for x in range(S):
-    t = x / S
-    col = lerp(c1, c2, t)
-    od.line([(x,0),(x,S)], fill=col + (90,))
-bg = Image.alpha_composite(bg, ov)
+    for x in range(S):
+        t = (x + y) / (2*S)
+        col = lerp(c1, c3, t) if t < 1 else c3
+        gp[x, y] = col + (255,)
 
 # rounded mask
 mask = Image.new("L", (S, S), 0)
 md = ImageDraw.Draw(mask)
-r = int(S*0.235)
-md.rounded_rectangle([0,0,S,S], radius=r, fill=255)
-img.paste(bg, (0,0), mask)
+md.rounded_rectangle([0, 0, S-1, S-1], radius=int(S*0.235), fill=255)
+img.paste(grad, (0, 0), mask)
 
 d = ImageDraw.Draw(img)
-# central orb (ring) — the "voice" mark
-cx, cy = S//2, S//2
-R = int(S*0.26)
-d.ellipse([cx-R, cy-R, cx+R, cy+R], fill=(13,14,18,235))
-ring = int(S*0.045)
-d.ellipse([cx-R, cy-R, cx+R, cy+R], outline=(255,255,255,235), width=ring)
-# small inner dot
-r2 = int(S*0.075)
-d.ellipse([cx-r2, cy-r2, cx+r2, cy+r2], fill=(255,255,255,245))
+# Lucide "audio-lines": vertical bars (x, top, bottom) in 0..24 viewBox
+bars = [(2,10,13),(6,6,17),(10,3,21),(14,8,15),(18,5,18),(22,10,13)]
+scale = 20.0                 # 24*20 = 480px glyph
+ox = S/2 - 12*scale          # center the 0..24 box
+oy = S/2 - 12*scale
+w = 2.0*scale                # strokeWidth 2
+for (x, t, b) in bars:
+    px = ox + x*scale
+    y0 = oy + t*scale
+    y1 = oy + b*scale
+    d.rounded_rectangle([px-w/2, y0-w/2, px+w/2, y1+w/2], radius=w/2, fill=(255,255,255,255))
 
 img.save("assets/icon-source.png")
 print("wrote assets/icon-source.png", img.size)
