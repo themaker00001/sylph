@@ -1,0 +1,15 @@
+# Node
+node_modules/
+
+# Python sidecar env
+.venv/
+__pycache__/
+*.pyc
+
+# Rust / Tauri
+src-tauri/target/
+src-tauri/gen/
+
+# Local config / OS
+.DS_Store
+*.log

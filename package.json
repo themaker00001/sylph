@@ -1,0 +1,16 @@
+{
+  "name": "sylph",
+  "version": "0.1.0",
+  "description": "Feather-light, on-device voice to text. Speak, and it flows.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "setup": "bash scripts/setup.sh"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.1.0"
+  }
+}

@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sylph</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="mark"></div>
+        <div class="name">Sylph<small>voice · flow</small></div>
+      </div>
+      <nav class="nav" id="nav">
+        <button data-page="dictate" class="active">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg>
+          Dictate
+        </button>
+        <button data-page="history">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+          History
+        </button>
+        <button data-page="dictionary">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          Dictionary
+        </button>
+        <button data-page="settings">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </button>
+      </nav>
+      <div class="spacer"></div>
+      <div class="engine-status">
+        <span class="dot loading" id="engineDot"></span>
+        <span id="engineLabel">Starting engine…</span>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <main class="content">
+      <!-- DICTATE -->
+      <section class="page active" id="page-dictate">
+        <h1 class="page-title">Dictate anywhere</h1>
+        <p class="page-sub">Press your hotkey in any app, speak, and Sylph types it for you — fully on-device.</p>
+
+        <div class="hero">
+          <button class="mic-btn" id="micBtn" aria-label="Start dictation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg>
+          </button>
+          <div class="wave" id="wave" style="display:none"></div>
+          <h2 id="heroStatus">Tap to try it here</h2>
+          <p>or press <span class="kbd" id="heroHotkey">⌘⇧Space</span> from anywhere</p>
+
+          <div class="transcript-box empty" id="transcript">Your transcription will appear here…</div>
+          <div class="metrics" id="metrics" style="display:none">
+            <div>first token <b id="mTtft">–</b></div>
+            <div>speed <b id="mTps">–</b></div>
+            <div>language <b id="mLang">–</b></div>
+          </div>
+        </div>
+
+        <div class="grid3">
+          <div class="card">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <h3>On-device</h3>
+            <p>Cactus Whistle runs locally — your voice never leaves this machine.</p>
+          </div>
+          <div class="card">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <h3>Instant</h3>
+            <p>~11 ms to first token. Transcripts land before you lift your finger.</p>
+          </div>
+          <div class="card">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+            <h3>7 languages</h3>
+            <p>English, German, French, Spanish, Italian, Dutch & Polish.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- HISTORY -->
+      <section class="page" id="page-history">
+        <h1 class="page-title">History</h1>
+        <p class="page-sub">Everything you've dictated, stored locally on your device.</p>
+        <div class="toolbar">
+          <input type="text" id="histSearch" placeholder="Search transcripts…" />
+          <button class="btn danger" id="clearHist">Clear all</button>
+        </div>
+        <div id="histList"></div>
+      </section>
+
+      <!-- DICTIONARY -->
+      <section class="page" id="page-dictionary">
+        <h1 class="page-title">Dictionary</h1>
+        <p class="page-sub">Teach Sylph names and terms it should get right. Whistle biases toward these words.</p>
+        <div class="add-row">
+          <input type="text" id="kwInput" placeholder="e.g. Cactus, Kubernetes, Aoife…" />
+          <button class="btn primary" id="kwAdd">Add</button>
+        </div>
+        <div class="chips" id="chips"></div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="page" id="page-settings">
+        <h1 class="page-title">Settings</h1>
+        <p class="page-sub">Tune how Sylph listens and inserts text.</p>
+
+        <div class="setting">
+          <div class="label"><h4>Dictation hotkey</h4><p>The global shortcut that starts and stops listening from any app.</p></div>
+          <button class="btn hotkey-capture" id="hotkeyBtn">⌘⇧Space</button>
+        </div>
+        <div class="setting">
+          <div class="label"><h4>Language</h4><p>Force a language, or let Whistle detect it automatically.</p></div>
+          <select id="langSel">
+            <option value="auto">Auto-detect</option>
+            <option value="en">English</option>
+            <option value="de">German</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <option value="it">Italian</option>
+            <option value="nl">Dutch</option>
+            <option value="pl">Polish</option>
+          </select>
+        </div>
+        <div class="setting">
+          <div class="label"><h4>Insert mode</h4><p>Paste is fastest; Type simulates keystrokes for apps that block paste.</p></div>
+          <select id="insertSel">
+            <option value="paste">Paste (⌘V)</option>
+            <option value="type">Type keystrokes</option>
+          </select>
+        </div>
+        <div class="setting">
+          <div class="label"><h4>Auto-insert</h4><p>Drop the transcript into the focused app automatically when you stop.</p></div>
+          <label class="switch"><input type="checkbox" id="autoIns" checked /><span></span></label>
+        </div>
+        <div class="setting">
+          <div class="label"><h4>Sound cues</h4><p>A soft chime when listening starts and stops.</p></div>
+          <label class="switch"><input type="checkbox" id="soundTgl" checked /><span></span></label>
+        </div>
+        <div class="setting">
+          <div class="label"><h4>Engine</h4><p>Cactus <b>Whistle</b> · Apache-2.0 · on-device. Anonymous telemetry is disabled.</p></div>
+          <span class="kbd">whistle.cact · 16.9 MB</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
