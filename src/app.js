@@ -79,16 +79,44 @@ $("#nav").addEventListener("click", (e) => {
   if (page === "history") renderHistory();
 });
 
-// ── Engine status ───────────────────────────────────────────────────────────
+// ── Engine status + first-run onboarding ─────────────────────────────────────
 async function initEngine() {
   const dot = $("#engineDot"), label = $("#engineLabel");
+  const firstRun = !localStorage.getItem("sylph.onboarded");
+  const ob = $("#onboarding");
+
+  if (firstRun) {
+    ob.classList.add("show");
+    // Advance to the "fetch model" step shortly after starting.
+    setTimeout(() => {
+      $("#obStep1").classList.add("done");
+      $("#obStep2").classList.add("active");
+      $("#obStatus").textContent = "Downloading the Whistle model (16.9 MB)…";
+    }, 900);
+  }
+
   try {
     const ready = await invoke("start_engine");
     dot.className = "dot on";
     label.textContent = ready ? "Whistle ready" : "Engine running";
+
+    if (firstRun) {
+      $("#obStep1").classList.add("done");
+      $("#obStep2").classList.add("done");
+      $("#obStep3").classList.add("active", "done");
+      $("#obStatus").textContent = "All set — Whistle is ready.";
+      localStorage.setItem("sylph.onboarded", "1");
+      setTimeout(() => { ob.style.opacity = "0"; ob.style.transition = "opacity .4s"; }, 650);
+      setTimeout(() => ob.classList.remove("show"), 1100);
+    }
   } catch (err) {
     dot.className = "dot";
     label.textContent = "Engine offline";
+    if (firstRun) {
+      $("#obTitle").textContent = "Couldn't start the engine";
+      $("#obDesc").textContent = "Run ./scripts/setup.sh in the project, then reopen Sylph.";
+      $("#obStatus").textContent = String(err);
+    }
     toast("Engine error: " + err);
   }
 }
