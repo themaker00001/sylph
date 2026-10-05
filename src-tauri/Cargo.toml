@@ -23,4 +23,5 @@ codegen-units = 1
 lto = true
 opt-level = "s"
 strip = true
-panic = "abort"
+# NOTE: do not set panic = "abort" — a panic on a worker thread (e.g. the
+# hotkey poller) must not take down the whole app.

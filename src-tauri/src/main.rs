@@ -329,7 +329,16 @@ fn start_hotkey_listener(app: tauri::AppHandle) {
     const DOUBLE: Duration = Duration::from_millis(450);
 
     std::thread::spawn(move || {
-        let ds = DeviceState::new();
+        // Wait for Accessibility permission WITHOUT panicking. device_query's
+        // DeviceState::new() asserts on the permission check (a failed assert
+        // would abort the whole app); checked_new() returns None instead. We
+        // poll until it's granted, so launching before granting never crashes.
+        let ds = loop {
+            if let Some(ds) = DeviceState::checked_new() {
+                break ds;
+            }
+            std::thread::sleep(Duration::from_secs(2));
+        };
         let mut down = false;
         let mut down_at = Instant::now();
         let mut other_key = false;
@@ -400,7 +409,8 @@ fn start_hotkey_listener(app: tauri::AppHandle) {
 #[tauri::command]
 fn capture_trigger() -> Option<String> {
     use device_query::{DeviceQuery, DeviceState};
-    let ds = DeviceState::new();
+    // checked_new() never panics: returns None if Accessibility isn't granted.
+    let ds = DeviceState::checked_new()?;
     // wait for a clean slate so we don't capture a key already held
     let start = Instant::now();
     while !ds.get_keys().is_empty() && start.elapsed() < Duration::from_secs(2) {
