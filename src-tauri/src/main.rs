@@ -363,16 +363,25 @@ fn start_hotkey_listener(app: tauri::AppHandle) {
     const DOUBLE: Duration = Duration::from_millis(450);
 
     std::thread::spawn(move || {
-        // Wait for Accessibility permission WITHOUT panicking. device_query's
-        // DeviceState::new() asserts on the permission check (a failed assert
-        // would abort the whole app); checked_new() returns None instead. We
-        // poll until it's granted, so launching before granting never crashes.
-        let ds = loop {
-            if let Some(ds) = DeviceState::checked_new() {
-                break ds;
+        // Accessibility permission, without spamming prompts. device_query's
+        // checked_new()/new() call the *prompting* API internally, so polling
+        // them re-prompts forever (the "keeps asking" bug). Instead: show the
+        // prompt exactly ONCE, then poll the non-prompting check, which reflects
+        // the grant live (no restart). If the grant never registers, the app is
+        // likely running translocated — installing to /Applications fixes that.
+        #[cfg(target_os = "macos")]
+        {
+            use macos_accessibility_client::accessibility::{
+                application_is_trusted, application_is_trusted_with_prompt,
+            };
+            if !application_is_trusted() {
+                application_is_trusted_with_prompt();
+                while !application_is_trusted() {
+                    std::thread::sleep(Duration::from_secs(1));
+                }
             }
-            std::thread::sleep(Duration::from_secs(2));
-        };
+        }
+        let ds = DeviceState::new();
         let mut down = false;
         let mut down_at = Instant::now();
         let mut other_key = false;

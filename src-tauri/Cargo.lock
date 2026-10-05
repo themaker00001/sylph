@@ -3294,6 +3294,7 @@ dependencies = [
  "device_query",
  "dirs 5.0.1",
  "enigo",
+ "macos-accessibility-client",
  "serde",
  "serde_json",
  "tauri",
