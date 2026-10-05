@@ -97,13 +97,26 @@ struct AppState {
 }
 
 fn resolve_sidecar() -> (PathBuf, PathBuf) {
+    // 1. explicit env overrides (dev / power users)
+    if let (Ok(p), Ok(s)) = (std::env::var("SYLPH_PYTHON"), std::env::var("SYLPH_SIDECAR")) {
+        return (PathBuf::from(p), PathBuf::from(s));
+    }
+    // 2. engine config written by the installer (so a downloaded .app finds it)
+    let cfg = config_dir().join("engine.json");
+    if let Ok(txt) = std::fs::read_to_string(&cfg) {
+        if let Ok(v) = serde_json::from_str::<Value>(&txt) {
+            if let (Some(p), Some(s)) = (
+                v.get("python").and_then(|x| x.as_str()),
+                v.get("sidecar").and_then(|x| x.as_str()),
+            ) {
+                return (PathBuf::from(p), PathBuf::from(s));
+            }
+        }
+    }
+    // 3. dev fallback: a .venv next to the crate
     let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let root = manifest.parent().unwrap_or(&manifest).to_path_buf();
-    let py = std::env::var("SYLPH_PYTHON").map(PathBuf::from)
-        .unwrap_or_else(|_| root.join(".venv/bin/python"));
-    let script = std::env::var("SYLPH_SIDECAR").map(PathBuf::from)
-        .unwrap_or_else(|_| root.join("sidecar/server.py"));
-    (py, script)
+    (root.join(".venv/bin/python"), root.join("sidecar/server.py"))
 }
 
 fn spawn_sidecar(state: &AppState) -> Result<(), String> {

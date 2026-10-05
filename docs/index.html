@@ -125,6 +125,12 @@
     .download h2{font-size:clamp(30px,5vw,46px);letter-spacing:-1.5px;margin-bottom:14px}
     .download p{color:var(--dim);margin-bottom:30px;font-size:16px}
     .dl-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+    .install-cmd{display:flex;align-items:center;gap:12px;justify-content:space-between;max-width:640px;margin:0 auto 12px;
+      border:1px solid var(--line-2);border-radius:12px;padding:14px 16px;background:#000}
+    .install-cmd .c{font-family:var(--mono);font-size:13px;color:var(--ink);overflow-x:auto;white-space:nowrap;text-align:left}
+    .install-cmd button{flex:none;border:1px solid var(--line-2);background:transparent;color:var(--ink);border-radius:8px;padding:7px 13px;font-size:12px;cursor:pointer}
+    .install-cmd button:hover{border-color:#fff;box-shadow:0 0 16px rgba(255,255,255,.18)}
+    .hint{color:var(--dim);font-size:13.5px;margin:0 auto 24px;max-width:560px}
     .req{margin-top:26px;font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.5px;line-height:1.8}
 
     footer{border-top:1px solid var(--line);padding:40px 0;position:relative;z-index:2}
@@ -212,12 +218,17 @@
       <div class="big-glyph" id="dlGlyph"></div>
       <h2>Get Sylph</h2>
       <p>Free, open source, and yours to run.</p>
+      <div class="install-cmd">
+        <span class="c" id="cmd">curl -fsSL https://themaker00001.github.io/sylph/install.sh | bash</span>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('cmd').textContent);this.textContent='Copied ✓'">Copy</button>
+      </div>
+      <p class="hint">One line — installs the app <b>and</b> the on-device engine, and sidesteps the macOS “damaged” popup automatically (no Gatekeeper fuss).</p>
       <div class="dl-row">
-        <a class="btn primary" href="https://github.com/themaker00001/sylph/releases/latest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16"/></svg>Download for macOS</a>
+        <a class="btn" href="https://github.com/themaker00001/sylph/releases/latest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16"/></svg>Download .dmg</a>
         <a class="btn" href="https://github.com/themaker00001/sylph#getting-started">Build from source</a>
         <a class="btn" href="https://github.com/themaker00001/sylph">View on GitHub</a>
       </div>
-      <div class="req">macOS 11+ · Apple Silicon · developer preview<br>if macOS says “damaged”, clear the quarantine flag (Gatekeeper, not a real error):<br><span style="color:var(--ink)">xattr -dr com.apple.quarantine /Applications/Sylph.app</span><br>then grant Microphone + Accessibility · engine sets up from source (one-click installer next)</div>
+      <div class="req">macOS 11+ · Apple Silicon · developer preview · needs Python 3.12 for the engine<br>prefer the .dmg? if macOS says “damaged”: <span style="color:var(--ink)">xattr -dr com.apple.quarantine /Applications/Sylph.app</span><br>grant Microphone + Accessibility on first run</div>
     </div>
   </div></section>
 
