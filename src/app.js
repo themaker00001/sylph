@@ -43,6 +43,8 @@ function mockInvoke(cmd, args) {
       }), 700));
     case "insert_text": return Promise.resolve();
     case "capture_trigger": return new Promise((r) => setTimeout(() => r("RControl"), 600));
+    case "accessibility_trusted": return Promise.resolve(true);
+    case "open_accessibility_settings": return Promise.resolve();
     default: return Promise.resolve(null);
   }
 }
@@ -79,6 +81,7 @@ $("#nav").addEventListener("click", (e) => {
   const page = btn.dataset.page;
   $$(".page").forEach((p) => p.classList.toggle("active", p.id === `page-${page}`));
   if (page === "history") renderHistory();
+  if (page === "settings") refreshAx();
 });
 
 // ── Engine status + first-run onboarding ─────────────────────────────────────
@@ -293,8 +296,26 @@ $("#triggerSel").addEventListener("change", (e) => {
   settings.trigger = e.target.value; applySettingsToUI(); saveSettings();
   toast("Trigger set to " + triggerLabel(settings.trigger));
 });
+async function refreshAx() {
+  const el = $("#axHint");
+  let trusted = true;
+  try { trusted = await invoke("accessibility_trusted"); } catch {}
+  if (el) {
+    if (trusted) {
+      el.innerHTML = "Accessibility: <b>active ✓</b> — hotkey and Record are ready.";
+    } else {
+      el.innerHTML = "Accessibility: <b>not active for this build.</b> Each update changes the app’s code identity, so a previous grant goes stale even if the toggle looks on. In <a id=\"openAx\">Accessibility settings</a>, select <b>Sylph</b>, press <b>−</b> to remove it, then re-add it (or toggle it off then on). No restart needed.";
+      const a = document.getElementById("openAx");
+      if (a) a.addEventListener("click", (e) => { e.preventDefault(); invoke("open_accessibility_settings"); });
+    }
+  }
+  return trusted;
+}
+
 $("#recordKey").addEventListener("click", async () => {
   const btn = $("#recordKey");
+  const trusted = await refreshAx();
+  if (trusted === false) { toast("Grant Accessibility to this build first — see the note below"); return; }
   const old = btn.textContent;
   btn.textContent = "Press a key…"; btn.disabled = true;
   try {
@@ -302,7 +323,10 @@ $("#recordKey").addEventListener("click", async () => {
     if (name) {
       settings.trigger = normTrigger(name); applySettingsToUI(); saveSettings();
       toast("Trigger set to " + triggerLabel(settings.trigger));
-    } else toast("No key captured — ensure Accessibility is granted, then try again");
+    } else {
+      await refreshAx();
+      toast("No key captured — check the Accessibility note below, then retry");
+    }
   } catch (err) { toast("Capture failed: " + err); }
   btn.textContent = old; btn.disabled = false;
 });
@@ -322,5 +346,6 @@ listen("sylph://transcribed", () => { renderHistory(); });
   settings = await invoke("get_settings");
   applySettingsToUI();
   renderChips();
+  refreshAx();
   initEngine();
 })();

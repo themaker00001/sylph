@@ -221,6 +221,9 @@ body::after {
 .setting:last-child { border-bottom: 0; }
 .setting .label h4 { margin: 0 0 3px; font-size: 14.5px; font-weight: 620; }
 .setting .label p { margin: 0; color: var(--text-dim); font-size: 12.5px; max-width: 470px; line-height: 1.5; }
+.ax-hint { margin: 8px 0 0 !important; font-size: 12px; line-height: 1.55; }
+.ax-hint a { color: var(--text); text-decoration: underline; cursor: pointer; font-weight: 600; }
+.ax-hint b { color: var(--text); }
 
 select, input[type="text"] {
   background: var(--surface); color: var(--text); border: 1px solid var(--stroke-strong);

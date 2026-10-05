@@ -265,6 +265,29 @@ fn copy_text(text: String) -> Result<(), String> {
     cb.set_text(text).map_err(|e| e.to_string())
 }
 
+/// Is this exact build actually trusted for Accessibility right now?
+/// (Non-prompting. For ad-hoc builds a stale System Settings toggle can read as
+/// "on" while this returns false — the build's code identity changed.)
+#[tauri::command]
+fn accessibility_trusted() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        return macos_accessibility_client::accessibility::application_is_trusted();
+    }
+    #[allow(unreachable_code)]
+    true
+}
+
+#[tauri::command]
+fn open_accessibility_settings() {
+    #[cfg(target_os = "macos")]
+    {
+        let _ = std::process::Command::new("open")
+            .arg("x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")
+            .spawn();
+    }
+}
+
 #[tauri::command]
 fn get_settings(state: State<AppState>) -> Settings { state.settings.lock().unwrap().clone() }
 
@@ -503,6 +526,7 @@ fn main() {
             start_engine, engine_ready, transcribe, insert_text, copy_text,
             get_settings, update_settings, get_history, add_history, clear_history,
             show_main, hide_pill, show_scratch, hide_scratch, capture_trigger,
+            accessibility_trusted, open_accessibility_settings,
         ])
         .setup(move |app| {
             start_hotkey_listener(app.handle().clone());
