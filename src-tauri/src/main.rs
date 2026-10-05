@@ -450,17 +450,34 @@ fn start_hotkey_listener(app: tauri::AppHandle) {
 /// Capture the next key the user presses, for a fully custom trigger.
 /// Returns the device_query debug name (e.g. "RControl", "F13", "RMeta").
 #[tauri::command]
-fn capture_trigger() -> Option<String> {
+async fn capture_trigger() -> Option<String> {
+    // Run the blocking poll off the main thread so the UI never freezes.
+    tauri::async_runtime::spawn_blocking(capture_next_key_blocking)
+        .await
+        .ok()
+        .flatten()
+}
+
+fn capture_next_key_blocking() -> Option<String> {
     use device_query::{DeviceQuery, DeviceState};
-    // checked_new() never panics: returns None if Accessibility isn't granted.
-    let ds = DeviceState::checked_new()?;
-    // wait for a clean slate so we don't capture a key already held
+    // Use the NON-prompting trust check. checked_new()/new() use the *prompting*
+    // API, which can report "not trusted" even when it is — that made capture
+    // silently return nothing. If truly not trusted, bail so the UI can say so.
+    #[cfg(target_os = "macos")]
+    {
+        if !macos_accessibility_client::accessibility::application_is_trusted() {
+            return None;
+        }
+    }
+    let ds = DeviceState::new();
+    // Wait for a clean slate so we don't grab a key that's already held (max 2s).
     let start = Instant::now();
     while !ds.get_keys().is_empty() && start.elapsed() < Duration::from_secs(2) {
         std::thread::sleep(Duration::from_millis(15));
     }
+    // Capture the next key pressed — generous window for reaction time.
     let t0 = Instant::now();
-    while t0.elapsed() < Duration::from_secs(6) {
+    while t0.elapsed() < Duration::from_secs(10) {
         if let Some(k) = ds.get_keys().into_iter().next() {
             return Some(format!("{:?}", k));
         }

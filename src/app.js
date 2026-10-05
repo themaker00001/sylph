@@ -302,7 +302,7 @@ $("#recordKey").addEventListener("click", async () => {
     if (name) {
       settings.trigger = normTrigger(name); applySettingsToUI(); saveSettings();
       toast("Trigger set to " + triggerLabel(settings.trigger));
-    } else toast("No key captured — try again");
+    } else toast("No key captured — ensure Accessibility is granted, then try again");
   } catch (err) { toast("Capture failed: " + err); }
   btn.textContent = old; btn.disabled = false;
 });
