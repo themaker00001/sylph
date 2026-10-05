@@ -13,3 +13,7 @@ src-tauri/gen/
 # Local config / OS
 .DS_Store
 *.log
+
+# Frozen engine (built by scripts/build_engine.sh)
+/build/
+src-tauri/resources/sylph-engine

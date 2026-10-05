@@ -87,10 +87,11 @@ async function initEngine() {
   const firstRun = !localStorage.getItem("sylph.onboarded");
   const ob = $("#onboarding");
 
+  let stepTimer = null;
   if (firstRun) {
     ob.classList.add("show");
     // Advance to the "fetch model" step shortly after starting.
-    setTimeout(() => {
+    stepTimer = setTimeout(() => {
       $("#obStep1").classList.add("done");
       $("#obStep2").classList.add("active");
       $("#obStatus").textContent = "Downloading the Whistle model (16.9 MB)…";
@@ -99,6 +100,7 @@ async function initEngine() {
 
   try {
     const ready = await invoke("start_engine");
+    if (stepTimer) clearTimeout(stepTimer);
     dot.className = "dot on";
     label.textContent = ready ? "Whistle ready" : "Engine running";
 
@@ -112,11 +114,17 @@ async function initEngine() {
       setTimeout(() => ob.classList.remove("show"), 1100);
     }
   } catch (err) {
+    if (stepTimer) clearTimeout(stepTimer);
     dot.className = "dot";
     label.textContent = "Engine offline";
     if (firstRun) {
+      // show a clean error state, not the half-finished progress
+      const bar = document.querySelector(".ob-progress");
+      const steps = document.querySelector(".ob-steps");
+      if (bar) bar.style.display = "none";
+      if (steps) steps.style.display = "none";
       $("#obTitle").textContent = "Couldn't start the engine";
-      $("#obDesc").textContent = "Run ./scripts/setup.sh in the project, then reopen Sylph.";
+      $("#obDesc").textContent = "Sylph couldn't launch its on-device engine. Please reinstall, or make sure macOS didn't block it.";
       $("#obStatus").textContent = String(err);
     }
     toast("Engine error: " + err);

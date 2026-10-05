@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "identifier": "com.sylph.app",
   "build": {
-    "frontendDist": "../src"
+    "frontendDist": "../src",
+    "beforeBuildCommand": "bash scripts/build_engine.sh"
   },
   "app": {
     "macOSPrivateApi": true,
@@ -61,6 +62,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "resources": ["resources/sylph-engine"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

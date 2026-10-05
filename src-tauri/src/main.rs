@@ -94,41 +94,62 @@ struct Sidecar {
 struct AppState {
     sidecar: Mutex<Option<Sidecar>>,
     settings: Mutex<Settings>,
+    engine: Mutex<Vec<String>>, // argv for launching the engine (resolved at startup)
 }
 
-fn resolve_sidecar() -> (PathBuf, PathBuf) {
-    // 1. explicit env overrides (dev / power users)
-    if let (Ok(p), Ok(s)) = (std::env::var("SYLPH_PYTHON"), std::env::var("SYLPH_SIDECAR")) {
-        return (PathBuf::from(p), PathBuf::from(s));
+/// Resolve how to launch the transcription engine, as an argv vector.
+/// Preference: bundled frozen binary (shipped in the .app) → env overrides →
+/// installer config → dev venv. The frozen binary needs no Python at all.
+fn resolve_engine(app: &tauri::AppHandle) -> Vec<String> {
+    // 1. frozen engine bundled inside the app (PyInstaller) — zero dependencies
+    if let Ok(res) = app.path().resource_dir() {
+        let frozen = res.join("resources/sylph-engine");
+        if frozen.exists() {
+            return vec![frozen.to_string_lossy().into_owned()];
+        }
     }
-    // 2. engine config written by the installer (so a downloaded .app finds it)
+    // 2. explicit overrides (dev / power users)
+    if let Ok(e) = std::env::var("SYLPH_ENGINE") {
+        return vec![e];
+    }
+    if let (Ok(p), Ok(s)) = (std::env::var("SYLPH_PYTHON"), std::env::var("SYLPH_SIDECAR")) {
+        return vec![p, s];
+    }
+    // 3. installer config (may point at a frozen engine or python+sidecar)
     let cfg = config_dir().join("engine.json");
     if let Ok(txt) = std::fs::read_to_string(&cfg) {
         if let Ok(v) = serde_json::from_str::<Value>(&txt) {
+            if let Some(e) = v.get("engine").and_then(|x| x.as_str()) {
+                return vec![e.to_string()];
+            }
             if let (Some(p), Some(s)) = (
                 v.get("python").and_then(|x| x.as_str()),
                 v.get("sidecar").and_then(|x| x.as_str()),
             ) {
-                return (PathBuf::from(p), PathBuf::from(s));
+                return vec![p.to_string(), s.to_string()];
             }
         }
     }
-    // 3. dev fallback: a .venv next to the crate
+    // 4. dev fallback: a .venv next to the crate
     let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let root = manifest.parent().unwrap_or(&manifest).to_path_buf();
-    (root.join(".venv/bin/python"), root.join("sidecar/server.py"))
+    vec![
+        root.join(".venv/bin/python").to_string_lossy().into_owned(),
+        root.join("sidecar/server.py").to_string_lossy().into_owned(),
+    ]
 }
 
 fn spawn_sidecar(state: &AppState) -> Result<(), String> {
     let mut guard = state.sidecar.lock().unwrap();
     if guard.is_some() { return Ok(()); }
-    let (py, script) = resolve_sidecar();
-    if !py.exists() {
-        return Err(format!("python venv not found at {}. Run ./scripts/setup.sh first.", py.display()));
+    let argv = state.engine.lock().unwrap().clone();
+    let (cmd, rest) = argv.split_first().ok_or("engine not configured")?;
+    if cmd.contains('/') && !std::path::Path::new(cmd).exists() {
+        return Err(format!("engine not found at {cmd}"));
     }
-    let mut child = Command::new(&py).arg(&script)
+    let mut child = Command::new(cmd).args(rest)
         .stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::inherit())
-        .spawn().map_err(|e| format!("failed to spawn sidecar: {e}"))?;
+        .spawn().map_err(|e| format!("failed to spawn engine: {e}"))?;
     let stdin = child.stdin.take().ok_or("no stdin")?;
     let stdout = child.stdout.take().ok_or("no stdout")?;
     let mut reader = BufReader::new(stdout);
@@ -450,6 +471,7 @@ fn main() {
         .manage(AppState {
             sidecar: Mutex::new(None),
             settings: Mutex::new(settings),
+            engine: Mutex::new(Vec::new()),
         })
         .invoke_handler(tauri::generate_handler![
             start_engine, engine_ready, transcribe, insert_text, copy_text,
@@ -458,6 +480,11 @@ fn main() {
         ])
         .setup(move |app| {
             start_hotkey_listener(app.handle().clone());
+            // Resolve the engine command once (prefers the bundled frozen binary).
+            {
+                let argv = resolve_engine(app.handle());
+                *app.state::<AppState>().engine.lock().unwrap() = argv;
+            }
 
             // Position the pill + scratchpad at the bottom-center of the screen.
             if let Some(pill) = app.get_webview_window("pill") {
